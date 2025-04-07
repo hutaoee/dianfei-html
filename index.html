@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电费均摊计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+        .red {
+            color: red;
+            font-weight: bold;
+        }
+        .blue {
+            color: blue;
+            font-weight: bold;
+        }
+        .days {
+            margin-top: 10px;
+        }
+        .days input {
+            width: 80%;
+            padding: 6px;
+            margin: 5px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #888;
+        }
+        .password-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div id="passwordContainer" class="password-container">
+    <h1>请输入密码</h1>
+    <form onsubmit="return checkPassword(event)">
+        <input type="password" id="password" placeholder="请输入密码" required>
+        <button type="submit">提交</button>
+    </form>
+</div>
+
+<div id="calculatorContainer" style="display: none;">
+    <div class="container">
+        <h1>电费均摊计算器</h1>
+        <label for="totalFee">总电费（元）:</label>
+        <input type="number" id="totalFee" placeholder="输入总电费">
+        
+        <label for="numResidents">住户数量:</label>
+        <input type="number" id="numResidents" placeholder="输入住户数量" oninput="generateDaysInputs()">
+        
+        <div id="daysContainer" class="days"></div>
+        
+        <button onclick="calculateShare()">计算均摊金额</button>
+
+        <div class="result" id="result"></div>
+        <div class="result" id="roundedResult"></div>
+        <div class="result" id="extraResult"></div>
+    </div>
+
+    <!-- 版权信息 -->
+    <div class="footer">
+        版权所有 © 2024 不辞万里  17344464443 
+    </div>
+</div>
+
+<script>
+    const correctPassword = "17344464443";  // 设置正确的密码
+
+    function checkPassword(event) {
+        event.preventDefault();  // 防止表单提交
+        const passwordInput = document.getElementById('password').value;
+
+        if (passwordInput === correctPassword) {
+            document.getElementById('passwordContainer').style.display = 'none';
+            document.getElementById('calculatorContainer').style.display = 'block';
+        } else {
+            alert("你个假粉丝，你用不到，快走吧！");
+        }
+    }
+
+    function generateDaysInputs() {
+        var numResidents = document.getElementById('numResidents').value;
+        var daysContainer = document.getElementById('daysContainer');
+        daysContainer.innerHTML = '';  // 清空之前生成的输入框
+
+        // 动态生成每个住户的用电天数输入框
+        for (var i = 1; i <= numResidents; i++) {
+            daysContainer.innerHTML += `<label for="days${i}">住户 ${i} 的用电天数:</label>`;
+            daysContainer.innerHTML += `<input type="number" id="days${i}" placeholder="输入住户 ${i} 的用电天数"><br>`;
+        }
+    }
+
+    function calculateShare() {
+        var totalFee = document.getElementById('totalFee').value;
+        var numResidents = document.getElementById('numResidents').value;
+        var resultDiv = document.getElementById('result');
+        var roundedResultDiv = document.getElementById('roundedResult');
+        var extraResultDiv = document.getElementById('extraResult');
+
+        if (totalFee === '' || numResidents === '' || numResidents <= 0) {
+            resultDiv.innerHTML = "请输入有效的电费和住户数量";
+            return;
+        }
+
+        var totalDays = 0;
+        var daysArray = [];
+        // 收集所有住户的用电天数并计算总天数
+        for (var i = 1; i <= numResidents; i++) {
+            var days = document.getElementById('days' + i).value;
+            if (days === '' || days <= 0) {
+                resultDiv.innerHTML = "请输入所有住户的有效用电天数";
+                return;
+            }
+            daysArray.push(Number(days));
+            totalDays += Number(days);
+        }
+
+        // 按天数比例分摊电费
+        var result = '';
+        var roundedResult = '';
+        var totalOriginalShare = 0;  // 原始金额总和
+        var totalRoundedShare = 0;   // 取整后金额总和
+
+        for (var i = 0; i < numResidents; i++) {
+            var share = ((daysArray[i] / totalDays) * totalFee).toFixed(2);
+            result += `住户 ${i + 1} 需要支付: ${share} 元<br>`;
+
+            totalOriginalShare += parseFloat(share);
+
+            // 计算每户的电费金额（向上取整 +1 元）
+            var roundedShare = Math.ceil(share) + 1;
+            totalRoundedShare += roundedShare;
+
+            roundedResult += `<span class="red">住户 ${i + 1} 需要支付: ${roundedShare} 元 (取整+1元)</span><br>`;
+        }
+
+        var extraAmount = (totalRoundedShare - totalOriginalShare).toFixed(2);  // 计算多出的总金额
+
+        resultDiv.innerHTML = result;
+        roundedResultDiv.innerHTML = roundedResult;
+        extraResultDiv.innerHTML = `<span class="blue">总共多出: ${extraAmount} 元</span>`;
+    }
+</script>
+
+</body>
+</html>
