@@ -42,31 +42,33 @@
             font-weight: bold;
             color: #495057;
         }
-        input {
-            width: calc(100% - 20px);
+        /* 统一输入框和按钮的宽度 */
+        input[type="number"],
+        input[type="password"],
+        button {
+            width: 100%; /* 设置为100%以确保与容器对齐 */
             padding: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 15px; /* 保持间距 */
             border: 1px solid #ced4da;
             border-radius: 4px;
             font-size: 16px;
-            box-sizing: border-box;
+            box-sizing: border-box; /* 确保padding和border包含在width内 */
             transition: border-color 0.2s ease-in-out;
         }
-        input:focus {
+        input[type="number"]:focus,
+        input[type="password"]:focus {
             border-color: #007bff;
             outline: none;
         }
         button {
-            width: 100%;
-            padding: 12px;
             background-color: #28a745;
             color: white;
-            border: none;
-            border-radius: 4px;
+            border: none; /* 按钮不需要边框 */
             cursor: pointer;
             font-size: 17px;
             font-weight: bold;
             margin-top: 20px;
+            margin-bottom: 0; /* 按钮下方不需要额外间距 */
             transition: background-color 0.2s ease-in-out;
         }
         button:hover {
@@ -81,7 +83,7 @@
             padding: 15px;
             border-radius: 5px;
             border: 1px solid #c3e6cb;
-            display: none; /* 默认隐藏 */
+            display: none;
         }
         .red {
             color: #dc3545;
@@ -94,8 +96,9 @@
         .days {
             margin-top: 15px;
         }
+        /* 住户天数输入框也保持一致宽度 */
         .days input {
-            width: calc(100% - 20px);
+            width: 100%;
         }
         .footer {
             text-align: center;
@@ -163,7 +166,6 @@
             daysContainer.innerHTML += `<label for="days${i}">住户 ${i} 的用电天数:</label>`;
             daysContainer.innerHTML += `<input type="number" id="days${i}" placeholder="输入住户 ${i} 的用电天数"><br>`;
         }
-        // 清空并隐藏结果，以防在修改住户数量时仍显示旧结果
         document.getElementById('result').style.display = 'none';
         document.getElementById('roundedResult').style.display = 'none';
         document.getElementById('extraResult').style.display = 'none';
@@ -176,14 +178,13 @@
         var roundedResultDiv = document.getElementById('roundedResult');
         var extraResultDiv = document.getElementById('extraResult');
 
-        // 默认隐藏结果框
         resultDiv.style.display = 'none';
         roundedResultDiv.style.display = 'none';
         extraResultDiv.style.display = 'none';
 
         if (totalFee === '' || numResidents === '' || numResidents <= 0) {
             resultDiv.innerHTML = "请输入有效的电费和住户数量";
-            resultDiv.style.display = 'block'; // 显示错误信息
+            resultDiv.style.display = 'block';
             return;
         }
 
@@ -193,13 +194,13 @@
             var daysInput = document.getElementById('days' + i);
             if (!daysInput) {
                 resultDiv.innerHTML = "请先输入住户数量并生成天数输入框。";
-                resultDiv.style.display = 'block'; // 显示错误信息
+                resultDiv.style.display = 'block';
                 return;
             }
             var days = daysInput.value;
             if (days === '' || days <= 0) {
                 resultDiv.innerHTML = "请输入所有住户的有效用电天数";
-                resultDiv.style.display = 'block'; // 显示错误信息
+                resultDiv.style.display = 'block';
                 return;
             }
             daysArray.push(Number(days));
@@ -229,7 +230,6 @@
         roundedResultDiv.innerHTML = roundedResult;
         extraResultDiv.innerHTML = `<span class="blue">总共多出: ${extraAmount} 元</span>`;
         
-        // 显示结果框
         resultDiv.style.display = 'block';
         roundedResultDiv.style.display = 'block';
         extraResultDiv.style.display = 'block';
