@@ -77,6 +77,39 @@
             box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
         }
     </style>
+    <script>
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123) {
+                window.location.replace("https://www.227999.xyz");
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                window.location.replace("https://www.227999.xyz");
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                window.location.replace("https://www.227999.xyz");
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                window.location.replace("https://www.227999.xyz");
+                return false;
+            }
+        };
+
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            window.location.replace("https://www.227999.xyz");
+        });
+
+        const threshold = 160;
+        const devtools = () => {
+            if ((window.outerWidth - window.innerWidth > threshold) || (window.outerHeight - window.innerHeight > threshold)) {
+                window.location.replace("https://www.227999.xyz");
+            }
+        }
+        setInterval(devtools, 1000);
+    </script>
 </head>
 <body>
 
@@ -106,20 +139,29 @@
         <div class="result" id="extraResult"></div>
     </div>
 
-    <!-- 版权信息 -->
     <div class="footer">
-        版权所有 © 2024 不辞万里  17344464443 
+        版权所有 © 2024 不辞万里 17344464443 
     </div>
 </div>
 
 <script>
-    const correctPassword = "17344464443";  // 设置正确的密码
+    const correctPasswordHash = "e537e296839352e85a53e414c718b5770335029a1b02b545f43574c868478d6b";
 
-    function checkPassword(event) {
-        event.preventDefault();  // 防止表单提交
+    async function sha256(message) {
+        const msgUint8 = new TextEncoder().encode(message); 
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hexHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hexHash;
+    }
+
+    async function checkPassword(event) {
+        event.preventDefault();
         const passwordInput = document.getElementById('password').value;
 
-        if (passwordInput === correctPassword) {
+        const hashedPasswordInput = await sha256(passwordInput);
+
+        if (hashedPasswordInput === correctPasswordHash) {
             document.getElementById('passwordContainer').style.display = 'none';
             document.getElementById('calculatorContainer').style.display = 'block';
         } else {
@@ -130,9 +172,8 @@
     function generateDaysInputs() {
         var numResidents = document.getElementById('numResidents').value;
         var daysContainer = document.getElementById('daysContainer');
-        daysContainer.innerHTML = '';  // 清空之前生成的输入框
+        daysContainer.innerHTML = '';
 
-        // 动态生成每个住户的用电天数输入框
         for (var i = 1; i <= numResidents; i++) {
             daysContainer.innerHTML += `<label for="days${i}">住户 ${i} 的用电天数:</label>`;
             daysContainer.innerHTML += `<input type="number" id="days${i}" placeholder="输入住户 ${i} 的用电天数"><br>`;
@@ -153,7 +194,6 @@
 
         var totalDays = 0;
         var daysArray = [];
-        // 收集所有住户的用电天数并计算总天数
         for (var i = 1; i <= numResidents; i++) {
             var days = document.getElementById('days' + i).value;
             if (days === '' || days <= 0) {
@@ -164,11 +204,10 @@
             totalDays += Number(days);
         }
 
-        // 按天数比例分摊电费
         var result = '';
         var roundedResult = '';
-        var totalOriginalShare = 0;  // 原始金额总和
-        var totalRoundedShare = 0;   // 取整后金额总和
+        var totalOriginalShare = 0;
+        var totalRoundedShare = 0;
 
         for (var i = 0; i < numResidents; i++) {
             var share = ((daysArray[i] / totalDays) * totalFee).toFixed(2);
@@ -176,14 +215,13 @@
 
             totalOriginalShare += parseFloat(share);
 
-            // 计算每户的电费金额（向上取整 +1 元）
             var roundedShare = Math.ceil(share) + 1;
             totalRoundedShare += roundedShare;
 
             roundedResult += `<span class="red">住户 ${i + 1} 需要支付: ${roundedShare} 元 (取整+1元)</span><br>`;
         }
 
-        var extraAmount = (totalRoundedShare - totalOriginalShare).toFixed(2);  // 计算多出的总金额
+        var extraAmount = (totalRoundedShare - totalOriginalShare).toFixed(2);
 
         resultDiv.innerHTML = result;
         roundedResultDiv.innerHTML = roundedResult;
